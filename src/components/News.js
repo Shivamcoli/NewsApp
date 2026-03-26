@@ -81,6 +81,14 @@ export class News extends Component {
             }
 
             const data = await fetch(url);
+            const contentType = data.headers.get("content-type") || "";
+            if (!contentType.includes("application/json")) {
+                const text = await data.text();
+                if (text && text.startsWith("<!DOCTYPE")) {
+                    throw new Error("Backend not running. Start with: npm run dev");
+                }
+                throw new Error("Unexpected response from server.");
+            }
             const parsedData = await data.json();
             if (!data.ok) {
                 throw new Error(parsedData?.message || parsedData?.error || "Request failed");
