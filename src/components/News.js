@@ -17,7 +17,10 @@ export class News extends Component {
     }
 
     getApiKey = () => {
-        return process.env.REACT_APP_NEWS_API_KEY || localStorage.getItem("NEWS_API_KEY") || "";
+        // NOTE: This key is intentionally embedded for a frontend-only app.
+        // If you want to keep keys private, use a backend proxy instead.
+        const fallbackHardcodedKey = "e5a75bad3e3e40f0b9b9ac88679d4697";
+        return process.env.REACT_APP_NEWS_API_KEY || fallbackHardcodedKey;
     }
 
     saveApiKey = async () => {
@@ -66,7 +69,7 @@ export class News extends Component {
         try {
             const apiKey = this.getApiKey();
             if (!apiKey) {
-                throw new Error("Missing NewsAPI key. Add it in .env (REACT_APP_NEWS_API_KEY) or paste it below.");
+                throw new Error("Missing NewsAPI key.");
             }
 
             const params = new URLSearchParams();
@@ -154,20 +157,6 @@ export class News extends Component {
                 {this.state.error && (
                     <div className="alert alert-warning" role="alert">
                         {this.state.error}
-                        {!this.getApiKey() && (
-                            <div className="mt-3 d-flex flex-wrap gap-2">
-                                <input
-                                    className="form-control"
-                                    style={{ maxWidth: 420 }}
-                                    placeholder="Paste your NewsAPI key"
-                                    value={this.state.apiKeyInput}
-                                    onChange={(e) => this.setState({ apiKeyInput: e.target.value })}
-                                />
-                                <button type="button" className="btn btn-dark" onClick={this.saveApiKey}>
-                                    Save key
-                                </button>
-                            </div>
-                        )}
                     </div>
                 )}
                 

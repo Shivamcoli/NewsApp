@@ -9,15 +9,13 @@ A polished React (Create React App) News app with categories, search, dark mode,
 
 ## Setup
 
-1) Create a `.env` file in the project root (same folder as `package.json`):
+This repo is configured to run without any setup (the NewsAPI key is embedded in the frontend code).
+
+Optional: you can still override it via a `.env` file in the project root (same folder as `package.json`):
 
 ```bash
 REACT_APP_NEWS_API_KEY=YOUR_KEY_HERE
 ```
-
-You can copy `.env.example` as a starting point.
-
-If you **don’t** create a `.env`, the app will prompt you to paste the key on first run and will save it in your browser (localStorage).
 
 2) Install dependencies:
 
