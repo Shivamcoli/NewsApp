@@ -1,6 +1,6 @@
 # ThunderNews
 
-A polished React (Create React App) News app with categories, search, country selection, dark mode, and pagination.
+A polished React (Create React App) News app with categories, search, dark mode, and pagination.
 
 ## Prerequisites
 
@@ -16,6 +16,8 @@ REACT_APP_NEWS_API_KEY=YOUR_KEY_HERE
 ```
 
 You can copy `.env.example` as a starting point.
+
+If you **don’t** create a `.env`, the app will prompt you to paste the key on first run and will save it in your browser (localStorage).
 
 2) Install dependencies:
 

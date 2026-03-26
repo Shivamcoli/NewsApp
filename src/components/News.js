@@ -11,9 +11,23 @@ export class News extends Component {
             loading:false,
             page:1,
             totalResults: 0,
-            error: null
+            error: null,
+            apiKeyInput: ""
         }
     }
+
+    getApiKey = () => {
+        return process.env.REACT_APP_NEWS_API_KEY || localStorage.getItem("NEWS_API_KEY") || "";
+    }
+
+    saveApiKey = async () => {
+        const k = (this.state.apiKeyInput || "").trim();
+        if (!k) return;
+        localStorage.setItem("NEWS_API_KEY", k);
+        this.setState({ apiKeyInput: "", error: null });
+        await this.fetchPage(1);
+    }
+
     fetchPage = async (page) => {
         const pageSize = String(this.props.pageSize);
         const endpoint = (this.props.query && this.props.query.trim().length > 0) ? "everything" : "top-headlines";
@@ -50,9 +64,9 @@ export class News extends Component {
 
         this.setState({ loading: true, error: null });
         try {
-            const apiKey = process.env.REACT_APP_NEWS_API_KEY;
+            const apiKey = this.getApiKey();
             if (!apiKey) {
-                throw new Error("Missing REACT_APP_NEWS_API_KEY. Create a .env file and restart.");
+                throw new Error("Missing NewsAPI key. Add it in .env (REACT_APP_NEWS_API_KEY) or paste it below.");
             }
 
             const params = new URLSearchParams();
@@ -140,6 +154,20 @@ export class News extends Component {
                 {this.state.error && (
                     <div className="alert alert-warning" role="alert">
                         {this.state.error}
+                        {!this.getApiKey() && (
+                            <div className="mt-3 d-flex flex-wrap gap-2">
+                                <input
+                                    className="form-control"
+                                    style={{ maxWidth: 420 }}
+                                    placeholder="Paste your NewsAPI key"
+                                    value={this.state.apiKeyInput}
+                                    onChange={(e) => this.setState({ apiKeyInput: e.target.value })}
+                                />
+                                <button type="button" className="btn btn-dark" onClick={this.saveApiKey}>
+                                    Save key
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
                 
