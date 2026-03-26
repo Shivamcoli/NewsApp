@@ -9,13 +9,7 @@ A polished React (Create React App) News app with categories, search, dark mode,
 
 ## Setup
 
-This repo is configured to run without any setup (the NewsAPI key is embedded in the frontend code).
-
-Optional: you can still override it via a `.env` file in the project root (same folder as `package.json`):
-
-```bash
-REACT_APP_NEWS_API_KEY=YOUR_KEY_HERE
-```
+This app uses a small Node backend proxy so it works with the NewsAPI Developer plan (which blocks browser requests except from localhost).
 
 2) Install dependencies:
 
@@ -25,8 +19,10 @@ npm ci
 
 ## Run (development)
 
+Runs backend (`:5000`) + frontend (`:3000`):
+
 ```bash
-npm start
+npm run dev
 ```
 
 Open `http://localhost:3000`.
@@ -37,10 +33,19 @@ Open `http://localhost:3000`.
 npm run build
 ```
 
-This creates a static site in the `build/` folder.
+## Run (production)
+
+```bash
+set NODE_ENV=production
+node server/index.js
+```
+
+Open `http://localhost:5000`.
 
 ## Deploy (static hosting)
 
-Upload the `build/` folder to any static host (Netlify / Vercel static / GitHub Pages, etc).
+Deploy this as a **Node web app** (Render/Railway/Fly/etc):
 
-Important: because this is a **frontend-only** app, your API key is embedded in the built JavaScript bundle. If you need a private key, you must use a backend proxy.
+- **Build command**: `npm ci && npm run build`
+- **Start command**: `node server/index.js`
+- **Env** (optional): `NEWS_API_KEY` to override the embedded key

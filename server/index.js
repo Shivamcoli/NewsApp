@@ -5,40 +5,66 @@ const path = require("path");
 const app = express();
 
 const PORT = Number(process.env.PORT || 5000);
-const NEWS_API_KEY = process.env.NEWS_API_KEY;
+
+// Intentionally embedded as requested (frontend-only won't work on NewsAPI dev plan).
+// You can still override via env var in deployment.
+const FALLBACK_NEWS_API_KEY = "e5a75bad3e3e40f0b9b9ac88679d4697";
+const NEWS_API_KEY = process.env.NEWS_API_KEY || FALLBACK_NEWS_API_KEY;
 
 app.get("/api/healthz", (_req, res) => {
   res.json({ ok: true });
 });
 
+async function forwardNewsApi(res, endpoint, params) {
+  const url = `https://newsapi.org/v2/${endpoint}?${new URLSearchParams({
+    ...params,
+    apiKey: NEWS_API_KEY,
+  }).toString()}`;
+
+  const upstream = await fetch(url);
+  const data = await upstream.json();
+  return res.status(upstream.status).json(data);
+}
+
 app.get("/api/top-headlines", async (req, res) => {
   try {
-    if (!NEWS_API_KEY) {
-      return res.status(500).json({
-        error:
-          "Server misconfigured: missing NEWS_API_KEY. Set it in your environment.",
-      });
-    }
-
-    const country = typeof req.query.country === "string" ? req.query.country : "in";
     const page = typeof req.query.page === "string" ? req.query.page : "1";
     const pageSize =
-      typeof req.query.pageSize === "string" ? req.query.pageSize : "6";
+      typeof req.query.pageSize === "string" ? req.query.pageSize : "9";
+    const category =
+      typeof req.query.category === "string" ? req.query.category : "general";
 
-    const url =
-      "https://newsapi.org/v2/top-headlines?" +
-      new URLSearchParams({
-        country,
-        page,
-        pageSize,
-        apiKey: NEWS_API_KEY,
-      }).toString();
+    // Dev plan: browser requests not allowed (except localhost), so we force server-side fetch.
+    return await forwardNewsApi(res, "top-headlines", {
+      country: "us",
+      category,
+      page,
+      pageSize,
+    });
+  } catch (_err) {
+    return res.status(500).json({ error: "Upstream request failed." });
+  }
+});
 
-    const upstream = await fetch(url);
-    const data = await upstream.json();
+app.get("/api/everything", async (req, res) => {
+  try {
+    const q = typeof req.query.q === "string" ? req.query.q : "";
+    const page = typeof req.query.page === "string" ? req.query.page : "1";
+    const pageSize =
+      typeof req.query.pageSize === "string" ? req.query.pageSize : "9";
 
-    return res.status(upstream.status).json(data);
-  } catch (err) {
+    if (!q.trim()) {
+      return res.status(400).json({ error: "Missing q" });
+    }
+
+    return await forwardNewsApi(res, "everything", {
+      q,
+      sortBy: "publishedAt",
+      language: "en",
+      page,
+      pageSize,
+    });
+  } catch (_err) {
     return res.status(500).json({ error: "Upstream request failed." });
   }
 });

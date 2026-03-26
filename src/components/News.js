@@ -67,26 +67,19 @@ export class News extends Component {
 
         this.setState({ loading: true, error: null });
         try {
-            const apiKey = this.getApiKey();
-            if (!apiKey) {
-                throw new Error("Missing NewsAPI key.");
-            }
-
             const params = new URLSearchParams();
-            params.set("apiKey", apiKey);
             params.set("page", String(page));
             params.set("pageSize", pageSize);
 
+            let url = "";
             if (endpoint === "everything") {
                 params.set("q", this.props.query.trim());
-                params.set("sortBy", "publishedAt");
-                params.set("language", "en");
+                url = `/api/everything?${params.toString()}`;
             } else {
-                params.set("country", "us");
                 params.set("category", this.props.category || "general");
+                url = `/api/top-headlines?${params.toString()}`;
             }
 
-            const url = `https://newsapi.org/v2/${endpoint}?${params.toString()}`;
             const data = await fetch(url);
             const parsedData = await data.json();
             if (!data.ok) {
